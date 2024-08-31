@@ -1,0 +1,35 @@
+﻿root = true
+
+[*]
+charset = utf-8
+max_line_length = 120
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.cs]
+dotnet_analyzer_diagnostic.severity = warning
+
+resharper_space_before_new_parentheses = false
+csharp_style_namespace_declarations = file_scoped
+csharp_style_var_for_built_in_types = true
+csharp_style_var_when_type_is_apparent = true
+resharper_trailing_comma_in_multiline_lists = true
+
+dotnet_diagnostic.SA1009.severity = none
+dotnet_diagnostic.SA1010.severity = none
+dotnet_diagnostic.SA1011.severity = none
+dotnet_diagnostic.SA1101.severity = none
+dotnet_diagnostic.SX1101.severity = warning
+dotnet_diagnostic.SA1116.severity = none
+dotnet_diagnostic.SA1200.severity = none
+dotnet_diagnostic.SA1204.severity = suggestion
+dotnet_diagnostic.SA1309.severity = none
+dotnet_diagnostic.SX1309.severity = warning
+dotnet_diagnostic.SA1633.severity = none
+
+[Hls2TlgrUploader.Tests/**/*.cs]
+dotnet_diagnostic.CA1707.severity = none
+dotnet_diagnostic.SA1600.severity = none
+dotnet_diagnostic.SA1615.severity = none
