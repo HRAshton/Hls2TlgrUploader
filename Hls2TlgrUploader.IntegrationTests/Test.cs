@@ -2,6 +2,7 @@ using System.Globalization;
 using Hls2TlgrUploader.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 
 namespace Hls2TlgrUploader.IntegrationTests;
@@ -18,11 +19,15 @@ public class Test
     [Fact]
     public async Task PublishVideo()
     {
+        // Arrange
         var uris = GetUris();
-        var service = GetService();
+        var (service, telegramBotClient) = GetService();
 
+        // Act
         var message = await service.CopyToTelegramAsync(uris, GetThumbnail(), "Some caption", CancellationToken.None);
+        await telegramBotClient.DeleteMessage(message.Chat.Id, message.MessageId);
 
+        // Assert
         Assert.NotNull(message);
         Assert.Equal("Some caption", message.Caption);
         Assert.True(message.MessageId > 0);
@@ -32,7 +37,7 @@ public class Test
         Assert.NotNull(message.Video);
         Assert.NotNull(message.Video.FileId);
         Assert.Equal(12, message.Video.Duration);
-        Assert.Equal("video", message.Video.FileName);
+        Assert.Equal("file", message.Video.FileName);
         Assert.Equal(1920, message.Video.Width);
         Assert.Equal(1080, message.Video.Height);
         Assert.Equal("video/mp4", message.Video.MimeType);
@@ -43,7 +48,7 @@ public class Test
         Assert.Equal(300, message.Video.Thumbnail.Height);
     }
 
-    private static IVideoUploadingService GetService()
+    private static (IVideoUploadingService Service, ITelegramBotClient Client) GetService()
     {
         var configuration = new ConfigurationBuilder()
             .AddJsonFile("appsettings.json")
@@ -55,7 +60,8 @@ public class Test
         serviceCollection.AddHttpClient();
 
         var serviceProvider = serviceCollection.BuildServiceProvider();
-        return serviceProvider.GetRequiredService<IVideoUploadingService>();
+        return (serviceProvider.GetRequiredService<IVideoUploadingService>(),
+            serviceProvider.GetRequiredService<ITelegramBotClient>());
     }
 
     private static Uri[] GetUris()

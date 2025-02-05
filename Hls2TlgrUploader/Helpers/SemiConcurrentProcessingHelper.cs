@@ -80,7 +80,7 @@ public class SemiConcurrentProcessingHelper : ISemiConcurrentProcessingHelper
         Func<TFirstCallbackResult, int, int, CancellationToken, Task> ordinalCallback,
         SemaphoreSlim ordinalSemaphore,
         IList<Status> statuses,
-        IList<TFirstCallbackResult?> results,
+        TFirstCallbackResult?[] results,
         CancellationToken cancellationToken)
     {
         await ordinalSemaphore.WaitAsync(cancellationToken);

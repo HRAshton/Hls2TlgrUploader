@@ -76,7 +76,7 @@ public sealed partial class VideoUploadingService(
     {
         await using Stream fileStream = IoHelper.OpenRead(videoInfo.FilePath);
 
-        Message message = await TelegramClient.SendVideoAsync(
+        Message message = await TelegramClient.SendVideo(
             TelegramConfig.DestinationChatId,
             new InputFileStream(fileStream),
             caption: caption,
