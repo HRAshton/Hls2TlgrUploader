@@ -17,6 +17,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - name: Setup FFmpeg
+      uses: FedericoCarboni/setup-ffmpeg@v3
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
