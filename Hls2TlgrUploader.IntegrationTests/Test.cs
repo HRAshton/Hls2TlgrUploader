@@ -52,6 +52,7 @@ public class Test
     {
         var configuration = new ConfigurationBuilder()
             .AddJsonFile("appsettings.json")
+            .AddEnvironmentVariables()
             .Build();
 
         var serviceCollection = new ServiceCollection();
