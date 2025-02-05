@@ -29,7 +29,11 @@ dotnet_diagnostic.SA1309.severity = none
 dotnet_diagnostic.SX1309.severity = warning
 dotnet_diagnostic.SA1633.severity = none
 
+[Hls2TlgrUploader.IntegrationTests/**/*.cs]
+dotnet_diagnostic.SA0001.severity = none
+
 [Hls2TlgrUploader.Tests/**/*.cs]
 dotnet_diagnostic.CA1707.severity = none
+dotnet_diagnostic.SA0001.severity = none
 dotnet_diagnostic.SA1600.severity = none
 dotnet_diagnostic.SA1615.severity = none

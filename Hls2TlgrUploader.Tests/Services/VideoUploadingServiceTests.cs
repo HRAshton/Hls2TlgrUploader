@@ -75,11 +75,8 @@ public class VideoUploadingServiceTests
         var cancellationToken = CancellationToken.None;
 
         _telegramClientMock
-            .Setup(t => t.MakeRequestAsync(It.IsAny<IRequest<Message>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Message
-            {
-                MessageId = 1,
-            });
+            .Setup(t => t.SendRequest(It.IsAny<IRequest<Message>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Message { Id = 1 });
 
         var videoStream = new MemoryStream();
         _ioHelperMock
@@ -96,20 +93,19 @@ public class VideoUploadingServiceTests
         // Assert
         Assert.Equal(1, result.MessageId);
         _telegramClientMock
-            .Verify(t => t.MakeRequestAsync(
+            .Verify(t => t.SendRequest(
                     It.Is<IRequest<Message>>(request =>
                         ((SendVideoRequest)request).Caption == "Test Caption"
                         && ((SendVideoRequest)request).ChatId == "@someChatId"
-                        && ((SendVideoRequest)request).DisableNotification == null
+                        && ((SendVideoRequest)request).DisableNotification == false
                         && ((SendVideoRequest)request).Duration == 60
-                        && ((SendVideoRequest)request).HasSpoiler == null
+                        && ((SendVideoRequest)request).HasSpoiler == false
                         && ((SendVideoRequest)request).Height == 720
                         && ((SendVideoRequest)request).MessageThreadId == null
                         && ((SendVideoRequest)request).MethodName == "sendVideo"
-                        && ((SendVideoRequest)request).ParseMode == null
-                        && ((SendVideoRequest)request).ProtectContent == null
+                        && ((SendVideoRequest)request).ParseMode == ParseMode.None
+                        && ((SendVideoRequest)request).ProtectContent == false
                         && ((SendVideoRequest)request).ReplyMarkup == null
-                        && ((SendVideoRequest)request).ReplyToMessageId == null
                         && ((SendVideoRequest)request).SupportsStreaming == true
                         && ((SendVideoRequest)request).Thumbnail != null
                         && ((SendVideoRequest)request).Thumbnail!.FileType == FileType.Stream
@@ -208,7 +204,7 @@ public class VideoUploadingServiceTests
         var cancellationToken = CancellationToken.None;
 
         _telegramClientMock
-            .Setup(t => t.MakeRequestAsync(It.IsAny<IRequest<Message>>(), It.IsAny<CancellationToken>()))
+            .Setup(t => t.SendRequest(It.IsAny<IRequest<Message>>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new TestException("Upload failed"));
 
         // Act & Assert
@@ -233,11 +229,8 @@ public class VideoUploadingServiceTests
         var cancellationToken = CancellationToken.None;
 
         _telegramClientMock
-            .Setup(t => t.MakeRequestAsync(It.IsAny<IRequest<Message>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Message
-            {
-                MessageId = 1,
-            });
+            .Setup(t => t.SendRequest(It.IsAny<IRequest<Message>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Message { Id = 1 });
 
         // Act
         await service.CopyToTelegramAsync(hlsParts, thumbnailStreamTask, "Test Caption", cancellationToken);
