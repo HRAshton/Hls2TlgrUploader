@@ -19,7 +19,7 @@
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
-        <PackageReleaseNotes>$([System.IO.File]::ReadAllText('../CHANGELOG.md'))</PackageReleaseNotes>
+        <PackageReleaseNotes>$([System.IO.File]::ReadAllText('CHANGELOG.md'))</PackageReleaseNotes>
     </PropertyGroup>
 
     <ItemGroup>
