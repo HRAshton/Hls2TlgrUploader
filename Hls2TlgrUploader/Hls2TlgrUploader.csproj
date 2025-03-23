@@ -12,7 +12,6 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <Version>1.0.2</Version>
         <Authors>HRAshton</Authors>
         <PackageTags>Telegram;HLS;Uploader</PackageTags>
         <Description>Uploads HLS streams to Telegram.</Description>
