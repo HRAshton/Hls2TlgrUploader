@@ -33,7 +33,6 @@ jobs:
         run: |
           mkdir -p ./artifacts
           echo "VERSION=$(echo ${{ github.ref }} | sed -e 's/refs\/tags\/v//')" >> $GITHUB_ENV
-          echo "$VERSION" > ./artifacts/VERSION.txt
 
       - name: Pack Solution
         run: dotnet pack --configuration Release /p:Version=$VERSION --output ./artifacts
@@ -72,15 +71,9 @@ jobs:
       - name: Download Package
         uses: actions/download-artifact@v4
 
-      - name: Set version
-        run: |
-          ls -R
-          VERSION=$(cat ./artifacts/VERSION.txt)
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-
       - name: Publish to NuGet
         run: >
           dotnet nuget push
-          ./artifacts/Hls2TlgrUploader.0.0.1.nupkg
+          ./artifacts/*.nupkg
           --api-key ${{ secrets.NUGET_API_KEY }}
           --source https://api.nuget.org/v3/index.json
