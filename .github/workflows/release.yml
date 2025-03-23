@@ -1,0 +1,86 @@
+name: Build & Publish .NET Library
+
+on:
+  workflow_dispatch: # Allow running the workflow manually from the GitHub UI
+  push:
+    tags:
+      - 'v*'         # Run the workflow when pushing a tag that starts with 'v'
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+
+jobs:
+  pack-and-run-integration-tests:
+    name: Pack & Run Integration Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Setup FFmpeg
+        uses: FedericoCarboni/setup-ffmpeg@v3
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Unit Tests
+        run: dotnet test --configuration Release Hls2TlgrUploader.Tests
+
+      - name: Set version
+        run: |
+          mkdir -p ./artifacts
+          echo "VERSION=$(echo ${{ github.ref }} | sed -e 's/refs\/tags\/v//')" >> $GITHUB_ENV
+          echo "$VERSION" > ./artifacts/VERSION.txt
+
+      - name: Pack Solution
+        run: dotnet pack --configuration Release /p:Version=$VERSION --output ./artifacts
+
+      - name: Replace references in Integration Tests project
+        run: |
+          dotnet remove Hls2TlgrUploader.IntegrationTests reference Hls2TlgrUploader/Hls2TlgrUploader.csproj
+          dotnet add Hls2TlgrUploader.IntegrationTests package Hls2TlgrUploader --version $VERSION --source ./artifacts
+
+      - name: Run Integration Tests
+        run: dotnet test --configuration Release Hls2TlgrUploader.IntegrationTests
+        env:
+          TELEGRAM__BOTTOKEN: ${{ secrets.TELEGRAM__BOTTOKEN }}
+          TELEGRAM__DESTINATIONCHATID: ${{ secrets.TELEGRAM__DESTINATIONCHATID }}
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts
+          path: ./artifacts/*
+          retention-days: 1
+          if-no-files-found: 'error'
+
+  publish-to-nuget:
+    name: Publish to NuGet
+    runs-on: ubuntu-latest
+    needs: pack-and-run-integration-tests
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Download Package
+        uses: actions/download-artifact@v4
+
+      - name: Set version
+        run: |
+          ls -R
+          VERSION=$(cat ./artifacts/VERSION.txt)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Publish to NuGet
+        run: >
+          dotnet nuget push
+          ./artifacts/Hls2TlgrUploader.0.0.1.nupkg
+          --api-key ${{ secrets.NUGET_API_KEY }}
+          --source https://api.nuget.org/v3/index.json
