@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Net.Http.Headers;
 using Hls2TlgrUploader.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -79,6 +80,8 @@ public class Test
     {
         var jpgExample = new Uri("https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg");
         var client = new HttpClient();
+        client.DefaultRequestHeaders.UserAgent.Add(
+            new ProductInfoHeaderValue("Hls2TlgrUploader.IntegrationTests", "1.0"));
         var response = await client.GetAsync(jpgExample);
         return await response.Content.ReadAsStreamAsync();
     }
