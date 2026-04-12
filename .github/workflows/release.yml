@@ -30,6 +30,7 @@ jobs:
     needs: test
     permissions:
       contents: write
+      id-token: write
 
     steps:
       - name: Checkout repository
@@ -41,6 +42,12 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
+
+      - name: NuGet Login
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: HRAshton
 
       - name: Bump version and create tag
         id: version
@@ -69,6 +76,6 @@ jobs:
       - name: Publish to NuGet
         run: |
           dotnet nuget push "./artifacts/*.nupkg" \
-            --api-key "${{ secrets.NUGET_API_KEY }}" \
+            --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" \
             --source "https://api.nuget.org/v3/index.json" \
             --skip-duplicate
