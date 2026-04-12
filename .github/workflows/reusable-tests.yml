@@ -1,0 +1,50 @@
+﻿name: Reusable Tests
+
+on:
+  workflow_call:
+    inputs:
+      dotnet-version:
+        required: false
+        type: string
+        default: 8.0.x
+      run-integration:
+        required: false
+        type: boolean
+        default: true
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+
+jobs:
+  tests:
+    name: Unit and Integration Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ inputs.dotnet-version }}
+
+      - name: Setup FFmpeg
+        if: ${{ inputs.run-integration }}
+        uses: FedericoCarboni/setup-ffmpeg@v3
+
+      - name: Restore
+        run: dotnet restore Hls2TlgrUploader.sln
+
+      - name: Build
+        run: dotnet build Hls2TlgrUploader.sln --configuration Release --no-restore
+
+      - name: Run unit tests
+        run: dotnet test Hls2TlgrUploader.Tests/Hls2TlgrUploader.Tests.csproj --configuration Release --no-build
+
+      - name: Run integration tests
+        if: ${{ inputs.run-integration }}
+        run: dotnet test Hls2TlgrUploader.IntegrationTests/Hls2TlgrUploader.IntegrationTests.csproj --configuration Release --no-build
+        env:
+          TELEGRAM__BOTTOKEN: ${{ secrets.TELEGRAM__BOTTOKEN }}
+          TELEGRAM__DESTINATIONCHATID: ${{ secrets.TELEGRAM__DESTINATIONCHATID }}
